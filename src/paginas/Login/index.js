@@ -52,8 +52,6 @@ const Login = () => {
   return (
     <Container fluid style={{ fontFamily: "Courier New" }}>
 
-
-
       <Row style={{ marginTop: window.innerHeight * (0.2) }}>
         <Col className="d-flex justify-content-center"
           style={{
@@ -78,9 +76,9 @@ const Login = () => {
             boxShadow: "5px 3px 0px 0px"
           }}>
             <p style={{ fontSize: 12 }}>{feedback}</p>
-            <Form >
+              <Form onSubmit={(e)=> e.preventDefault()} >
 
-              <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Group style={{marginBottom:10}}>
                 <Form.Control placeholder="Usuário" style={{
                   borderColor: "#DE989A",
                   borderWidht: "1.5px",
@@ -91,7 +89,7 @@ const Login = () => {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Group style={{marginBottom:10}}>
                 <Form.Control
                   type="password"
                   placeholder="Senha"

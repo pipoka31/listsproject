@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Row, Col, ListGroup } from "react-bootstrap"
+import { Container, Row, Col, ListGroup, Form, Button } from "react-bootstrap"
 import { useHistory } from "react-router-dom"
 import { Context } from "../../servicos/context"
 
@@ -10,49 +10,67 @@ import { faPlusCircle, faTrash, faDoorOpen } from '@fortawesome/free-solid-svg-i
 //API
 import API from "../../servicos/api";
 
+//MODALS
+import { AddListModal } from "./modal";
+
 const Principal = () => {
 
   const informations = useContext(Context)
   const [lists, setLists] = useState(informations.infos.lists)
-  const [newList, setNewList] = useState({ name: "", user_id: null })
-  const [newItem, setNewItem] = useState({ name: "", type: "", flavor: "", list_id: null })
+  const [newItem, setNewItem] = useState("")
+  const [update, setUpdate] = useState(false)
+  const [selectedList, setSelectedList] = useState({
+      id: 0,
+      name: "",
+      user_id: null,
+      items_quantity: null,
+      items: []
+    })
+  const [showListModal, setShowListModal] = useState(false);
+
   const history = useHistory();
 
-  const [listName, setListName] = useState("")
-
   useEffect(() => {
-    API.interceptors.request.use(function Config(config) {
-      config.headers = {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Authorization": `Bearer ${informations.infos.token}`
+    (
+      async function update(){
+        await API.get(`lists/${informations.infos.id}`,{
+          headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Authorization": `Bearer ${informations.infos.token}`
+        }})
+        .then((response)=>{
+          setLists(response.data.lists)
+        })
+        .catch((err)=>console.log(err))
       }
-      return config;
-    });
-  }, [])
+    )()
+  }, [update])
 
-  async function createList() {
 
-    API.post("/list", newList)
-      .then((response) => {
-        setLists([...lists, newList])
-        setNewList({ name: "", user_id: null })
-      })
-      .catch((err) => {
-        console.log(err)
-      })
 
+  function modalListClose(value){
+    setShowListModal(false);
+    setUpdate(true)
   }
 
   async function addItem() {
 
-    API.post("/item", newItem)
-      .then((response) => {
-        let list = lists
-        lists[newItem.list_id].push(newItem)
+    let item = {
+      name: newItem,
+      type:"item",
+      list_id:selectedList.id
+    }
 
-        setLists(list)
-        setNewItem({ name: "", type: "", flavor: "", list_id: null })
+    API.post("additem", item, {
+      headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Authorization": `Bearer ${informations.infos.token}`
+    }})
+      .then((response) => {
+      setNewItem("")
+      setUpdate(!update)
       })
       .catch((err) => {
         console.log(err)
@@ -62,6 +80,7 @@ const Principal = () => {
 
   return (
     <Container fluid style={{ fontFamily: "Courier New" }}>
+    {showListModal? <AddListModal show={true} user_id={informations.infos.id} close={modalListClose} token={informations.infos.token}/>:""}
 
       <Row style={{ marginTop: 20, boxShadow: "0px 3px rgb(0,0,0,0.1)" }}>
         <Col className="d-flex justify-content-start" style={{ fontSize: 18, marginBottom: 12 }}>Bem-vindo, {informations.infos.name}! ;)</Col>
@@ -84,9 +103,9 @@ const Principal = () => {
               {informations.infos.lists.length > 0 ?
                 <ListGroup variant="flush">
                   {
-                    informations.infos.lists.map((list) => {
-                      <ListGroup.Item style={{ border: "solid", borderColor: "black", borderRadius: 80 }} action active={true}>{list.name}</ListGroup.Item>
-                    })
+                    lists.map((list, index) =>
+                      <ListGroup.Item key={index} onClick={()=>setSelectedList(list)}>{list.name}</ListGroup.Item>
+                    )
                   }
                 </ListGroup>
                 :
@@ -96,7 +115,9 @@ const Principal = () => {
               }
             </Row>
             <Row style={{ marginBottom: 10 }}>
-              <Col className="d-flex justify-content-center"><FontAwesomeIcon icon={faPlusCircle} size="lg" color="#75903E" /></Col>
+              <Col className="d-flex justify-content-center" onClick={()=>setShowListModal(true)}>
+              <FontAwesomeIcon icon={faPlusCircle} size="lg" color="#75903E" />
+              </Col>
             </Row>
           </div>
         </Col>
@@ -113,12 +134,52 @@ const Principal = () => {
             borderColor: "#E7E7E7"
           }}>
             <Row style={{ marginBottom: 20 }} >
-              <Col style={{ fontSize: 24, color: "white", backgroundColor: "#A799B7", borderRadius: 10 }}>Items da lista</Col>
+              <Col style={{ fontSize: 24, color: "white", backgroundColor: "#A799B7", borderRadius: 10 }}>Items da lista {selectedList?.name}</Col>
             </Row>
 
-            <Row style={{ marginBottom: 10 }}>
+            <Row>
+            <Col>
+              <Form onSubmit={(e)=>e.preventDefault()}>
+                <Row>
+                <Col md={9}>
+                  <Form.Control
+                  type="text"
+                  style={{borderRadius:10}}
+                  value={newItem}
+                  onChange={(e)=>setNewItem(e.target.value)}
+                  />
+                  </Col>
+                  <Col>
+                  <Button
+                  type="submit"
+                  style={{
+                    backgroundColor: "#DE989A",
+                    border: "#DE989A",
+                    borderRadius: 10,
+                  }}
+                  onClick={(e)=>addItem()}
+                  >Adicionar</Button>
+                  </Col>
+                  </Row>
+
+
+              </Form>
+              </Col>
 
             </Row>
+
+            <ListGroup variant="flush" style={{ marginTop:20 }}>
+            {selectedList?.items.map((item, index)=>
+              <ListGroup.Item style={{ marginBottom: 10 }} index={index}>
+              <Row>
+              <Col md={1}><Form.Check tyle="checkbox"/></Col>
+                <Col>{item.name}</Col>
+                <Col className="d-flex justify-content-end" ><FontAwesomeIcon icon = { faTrash }/></Col>
+              </Row>
+              </ListGroup.Item>
+            )
+            }
+            </ListGroup>
           </div>
         </Col>
 
