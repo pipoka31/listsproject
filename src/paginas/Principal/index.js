@@ -32,6 +32,12 @@ const Principal = () => {
 
   const history = useHistory();
 
+  //Ao montar o componente verifica se ja existem listas
+  useEffect(()=>{
+    if(lists.length > 0 ){
+    setSelectedList(lists[0])
+  } },[])
+
   useEffect(() => {
     (
       async function update(){
@@ -42,6 +48,9 @@ const Principal = () => {
           "Authorization": `Bearer ${informations.infos.token}`
         }})
         .then((response)=>{
+          if(response.data.length == 1){
+            setSelectedList(response.data[0])
+          }
           setLists(response.data.lists)
           console.log(response.data)
           response.data.lists.map((list)=>{
@@ -163,7 +172,7 @@ const Principal = () => {
             </Row>
 
             <Row>
-              {informations.infos.lists.length > 0 ?
+              {lists.length > 0 ?
                 <ListGroup variant="flush">
                   {
                     lists.map((list, index) =>
@@ -185,9 +194,11 @@ const Principal = () => {
           </div>
         </Col>
 
+        {
+          lists.length > 0?
         <Col style={{ height: window.innerHeight * (0.8) }}>
           <div style={{
-            width: "70%",
+            width: "90%",
             height: "100%",
             padding: 20,
             border: "solid",
@@ -196,8 +207,12 @@ const Principal = () => {
             boxShadow: "5px 3px gray",
             borderColor: "#E7E7E7"
           }}>
-            <Row style={{ marginBottom: 20 }} >
-              <Col style={{ fontSize: 24, color: "white", backgroundColor: "#A799B7", borderRadius: 10 }}>Items da lista {selectedList?.name}</Col>
+            <Row>
+              <Col style={{ fontSize: 24, color: "white", backgroundColor: "#A799B7", borderRadius: 10, fontFamily:"Courier New" }}>{selectedList?.name}</Col>
+            </Row>
+
+            <Row style={{ marginBottom: 20, marginTop:5 }} noGutters>
+              <Col style={{ fontSize: 12, color: "black", fontFamily:"Courier New" }}>Criada por: {informations.infos.name}</Col>
             </Row>
 
             <Row>
@@ -242,7 +257,7 @@ const Principal = () => {
               <ListGroup.Item style={{ marginBottom: 10 }} key={index}>
               <Row>
               <Col md={1}><Form.Check tyle="checkbox"/></Col>
-                <Col onClick={()=>startEditingMode(item)}>{item.name}{editingItem.id == item.id?" (Editando)":""}</Col>
+                <Col md={9} onClick={()=>startEditingMode(item)}>{item.name}{editingItem.id == item.id?" (Editando)":""}</Col>
                 <Col className="d-flex justify-content-end" onClick={()=>deleteItem(item)} ><FontAwesomeIcon icon = { faTrash }/></Col>
               </Row>
               </ListGroup.Item>
@@ -251,6 +266,9 @@ const Principal = () => {
             </ListGroup>
           </div>
         </Col>
+        :
+        ""
+      }
 
       </Row>
     </Container >
