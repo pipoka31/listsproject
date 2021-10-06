@@ -18,6 +18,8 @@ const Principal = () => {
   const informations = useContext(Context)
   const [lists, setLists] = useState(informations.infos.lists)
   const [newItem, setNewItem] = useState("")
+  const [editingItem, setEditingItem] = useState({})
+  const [editingMode, setEditingMode] = useState(false)
   const [update, setUpdate] = useState(false)
   const [selectedList, setSelectedList] = useState({
       id: 0,
@@ -41,6 +43,12 @@ const Principal = () => {
         }})
         .then((response)=>{
           setLists(response.data.lists)
+          console.log(response.data)
+          response.data.lists.map((list)=>{
+            if(list.id == selectedList.id){
+              setSelectedList(list)
+            }
+          })
         })
         .catch((err)=>console.log(err))
       }
@@ -51,7 +59,7 @@ const Principal = () => {
 
   function modalListClose(value){
     setShowListModal(false);
-    setUpdate(true)
+    setUpdate(!update)
   }
 
   async function addItem() {
@@ -62,7 +70,7 @@ const Principal = () => {
       list_id:selectedList.id
     }
 
-    API.post("additem", item, {
+    await API.post("item", item, {
       headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
@@ -76,6 +84,61 @@ const Principal = () => {
         console.log(err)
       })
 
+  }
+
+  async function deleteItem(item){
+    let payload = {
+      done: item.done? 1:0,
+      flavor: item.flavor,
+      item_id: item.id,
+      list_id: item.list_id,
+      name: item.name,
+      type: item.type
+    }
+
+    await API.delete("item", {
+      headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Authorization": `Bearer ${informations.infos.token}`,
+    },
+    data: payload
+  } )
+    .then(()=>setUpdate(!update))
+    .catch((err)=> console.log(err))
+
+    }
+
+  async function updateItem(){
+    let item ={
+      name: newItem,
+      flavor: editingItem.flavor,
+      type: editingItem.type,
+      item_id: editingItem.id,
+      list_id: editingItem.list_id,
+      done: editingItem.done? 1:0
+    }
+    console.log(item)
+    await API.put("item",item,{
+      headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Authorization": `Bearer ${informations.infos.token}`
+    }})
+    .then((response)=>{
+      setUpdate(!update)
+      setNewItem("")
+      setEditingMode(false)
+      setEditingItem({id:0})
+    })
+    .catch((err)=>console.log(err))
+
+  }
+
+  function startEditingMode(item){
+    setEditingItem(item)
+    setNewItem(item.name)
+    setEditingMode(true)
   }
 
   return (
@@ -157,8 +220,14 @@ const Principal = () => {
                     border: "#DE989A",
                     borderRadius: 10,
                   }}
-                  onClick={(e)=>addItem()}
-                  >Adicionar</Button>
+                  onClick={(e)=>{
+                    if(editingMode){
+                      updateItem()
+                    }else{
+                    addItem()
+                    }
+                  }}
+                  >{editingMode?"Salvar":"Adicionar"}</Button>
                   </Col>
                   </Row>
 
@@ -170,11 +239,11 @@ const Principal = () => {
 
             <ListGroup variant="flush" style={{ marginTop:20 }}>
             {selectedList?.items.map((item, index)=>
-              <ListGroup.Item style={{ marginBottom: 10 }} index={index}>
+              <ListGroup.Item style={{ marginBottom: 10 }} key={index}>
               <Row>
               <Col md={1}><Form.Check tyle="checkbox"/></Col>
-                <Col>{item.name}</Col>
-                <Col className="d-flex justify-content-end" ><FontAwesomeIcon icon = { faTrash }/></Col>
+                <Col onClick={()=>startEditingMode(item)}>{item.name}{editingItem.id == item.id?" (Editando)":""}</Col>
+                <Col className="d-flex justify-content-end" onClick={()=>deleteItem(item)} ><FontAwesomeIcon icon = { faTrash }/></Col>
               </Row>
               </ListGroup.Item>
             )

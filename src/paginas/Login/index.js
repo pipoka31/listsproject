@@ -103,20 +103,21 @@ const Login = () => {
                 />
               </Form.Group>
 
+              <Button
+                block
+                type="submit"
+                style={{
+                  backgroundColor: "#DE989A",
+                  border: "#DE989A",
+                  borderRadius: 10,
+                  width: 280
+                }}
+                onClick={() => processLogin()}
+              >
+                Vamos lá
+              </Button>
+
             </Form>
-            <Button
-              block
-              type="submit"
-              style={{
-                backgroundColor: "#DE989A",
-                border: "#DE989A",
-                borderRadius: 10,
-                width: 280
-              }}
-              onClick={() => processLogin()}
-            >
-              Vamos lá
-            </Button>
 
             <p
               style={{ fontSize: 11, marginTop: 20, textAlign: "center" }}

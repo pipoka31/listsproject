@@ -76,7 +76,7 @@ const CriarUsuario = () => {
             boxShadow: "5px 3px 0px 0px"
           }}>
             <p style={{ fontSize: 12 }}>{feedback}</p>
-            <Form>
+            <Form onSubmit={(e)=> e.preventDefault()}>
 
               <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Control placeholder="Nome" style={{
@@ -129,19 +129,21 @@ const CriarUsuario = () => {
                 />
               </Form.Group>
 
+              <Button
+                type="submit"
+                block
+                style={{
+                  backgroundColor: "#DE989A",
+                  border: "#DE989A",
+                  borderRadius: 10,
+                  width: 280
+                }}
+                onClick={() => createUser()}
+              >
+                Pronto para começar!
+              </Button>
+
             </Form>
-            <Button
-              block
-              style={{
-                backgroundColor: "#DE989A",
-                border: "#DE989A",
-                borderRadius: 10,
-                width: 280
-              }}
-              onClick={() => createUser()}
-            >
-              Pronto para começar!
-            </Button>
 
             <p
               style={{ fontSize: 11, marginTop: 20, textAlign: "center" }}
