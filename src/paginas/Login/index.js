@@ -1,24 +1,25 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Col, Row, Container, Form, Button } from "react-bootstrap";
 
 //UseHistory
 import { useHistory, Link } from "react-router-dom";
-import { Context } from "../../servicos/context"
+import { useAuth } from "../../servicos/context"
 
 //API
 import API from "../../servicos/api";
 
 
 const Login = () => {
-
+  const { session, setSession } = useAuth()
   const history = useHistory();
-  const informations = useContext(Context)
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [feedback, setFeedback] = useState("");
 
-  useEffect(() => { console.log(informations) }, [])
+  useEffect(() => {
+    if (session) history.push('/principal')
+  }, [session])
 
 
   async function processLogin() {
@@ -31,15 +32,15 @@ const Login = () => {
       return
     }
 
-    await API.post("login", { username: username, password: password })
+    await API.post("login", { username, password })
       .then((response) => {
-        informations.setInfos({
-          ...informations.infos,
+        setSession({
           token: response.data.token,
           name: response.data.user.name,
           id: response.data.user.id,
           lists: response.data.user.lists
         })
+
         history.push("/principal");
       })
       .catch((err) => {
@@ -76,9 +77,9 @@ const Login = () => {
             boxShadow: "5px 3px 0px 0px"
           }}>
             <p style={{ fontSize: 12 }}>{feedback}</p>
-              <Form onSubmit={(e)=> e.preventDefault()} >
+            <Form onSubmit={(e) => e.preventDefault()} >
 
-              <Form.Group style={{marginBottom:10}}>
+              <Form.Group style={{ marginBottom: 10 }}>
                 <Form.Control placeholder="Usuário" style={{
                   borderColor: "#DE989A",
                   borderWidht: "1.5px",
@@ -89,7 +90,7 @@ const Login = () => {
                 />
               </Form.Group>
 
-              <Form.Group style={{marginBottom:10}}>
+              <Form.Group style={{ marginBottom: 10 }}>
                 <Form.Control
                   type="password"
                   placeholder="Senha"

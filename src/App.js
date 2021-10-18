@@ -15,11 +15,11 @@ import Provider from "./servicos/context"
 function App() {
   const [token, setToken] = useState("He")
   return (
-    <Provider>
-      <Router>
+    <Router>
+      <Provider>
         <Rotas />
-      </Router>
-    </Provider>
+      </Provider>
+    </Router>
   );
 }
 

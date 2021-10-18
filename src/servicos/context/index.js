@@ -1,17 +1,26 @@
-import React, { useState, createContext } from "react";
+import React, { createContext, useContext } from "react";
+import useLocalStorage from 'use-local-storage';
 
 export const Context = createContext();
 
+export function useAuthProvider() {
+  const [session, setSession] = useLocalStorage('session', null)
+
+  return { session, setSession }
+}
+
 const Provider = ({ children }) => {
-  const [infos, setInfos] = useState({
-    token: "",
-    name: "",
-    id: "",
-    lists: []
-  });
+  const auth = useAuthProvider()
+
+  // const [infos, setInfos] = useState({
+  //   token: "",
+  //   name: "",
+  //   id: "",
+  //   lists: []
+  // });
 
   return (
-    <Context.Provider value={{ infos, setInfos }}>
+    <Context.Provider value={auth}>
       {children}
     </Context.Provider>
   )
@@ -19,3 +28,7 @@ const Provider = ({ children }) => {
 }
 
 export default Provider
+
+export function useAuth() {
+  return useContext(Context)
+}
