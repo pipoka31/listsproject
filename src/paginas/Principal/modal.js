@@ -4,7 +4,14 @@ import { Row, Col, Button, Modal, Form } from "react-bootstrap";
 import API from "../../servicos/api";
 
 export const AddListModal = (props) => {
-  const [list, setList] = useState({ name: "", user_id: props.user_id })
+  const [list, setList] = useState({
+    name: "",
+    user_id: props.user_id ,
+    is_notebook: 0,
+    color:"#A799B7"
+  })
+
+  const colors = ["#A799B7","#F6BD60","#F5CAC3","#F28482","#4D908E","#b5c99a","#ddbea9","#98c1d9","#ffb5a7","#f2b5d4"]
 
   async function createList() {
 
@@ -23,15 +30,17 @@ export const AddListModal = (props) => {
       })
   }
 
+  function notebookCheck(value){
+
+  }
+
   return (
     <Modal show={true} style={{ borderRadius:10, borderWidth:2 }} onHide={()=> props.close()} >
-      <Modal.Header closeButton>
 
-      </Modal.Header>
       <Modal.Body>
           <Form onSubmit={(e)=>e.preventDefault()}>
             <Form.Group>
-              <Form.Label>Nome da lista</Form.Label>
+              <Form.Label>Nome</Form.Label>
                 <Form.Control
                 style={{
                  borderColor: "#DE989A",
@@ -42,6 +51,35 @@ export const AddListModal = (props) => {
                 onChange={(e)=>setList({...list,name: e.target.value})}
                 />
             </Form.Group>
+
+            <Form.Group style={{ marginTop:5 }}>
+
+                <Form.Check type="checkbox" label="Caderno" isSelected={list.is_notebook == 1} onClick={()=>setList({...list,is_notebook:1})}/>
+                <Form.Check type="checkbox" label= "Lista" isSelected={list.is_notebook == 0} onClick={()=>setList({...list,is_notebook:0})}/>
+
+            </Form.Group>
+
+            <Row>
+            {colors.map((color)=>
+              <Col md={1}>
+                <div style={{
+                  borderRadius: 50,
+                  backgroundColor: color,
+                  marginTop:10,
+                  width:20,
+                  height:25,
+                  border: list.color == color?"solid":"none",
+                  borderWidth:1
+                 }}
+                 onClick={()=>setList({...list, color:color})}
+                 >
+                </div>
+              </Col>
+            )}
+            </Row>
+
+
+
             <Row>
             <Col>
             <Button

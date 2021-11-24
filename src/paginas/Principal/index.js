@@ -5,7 +5,7 @@ import { useAuth } from "../../servicos/context"
 
 //FONT AWESOME ICONS
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlusCircle, faTrash, faDoorOpen } from '@fortawesome/free-solid-svg-icons'
+import { faPlusCircle, faTrash, faDoorOpen, faSearch } from '@fortawesome/free-solid-svg-icons'
 
 //API
 import API from "../../servicos/api";
@@ -13,12 +13,13 @@ import API from "../../servicos/api";
 //MODALS
 import { AddListModal } from "./modal";
 
+//COMPONENTS
+import Notepad from "../../componentes/notepad"
+import EditableNotepad from "../../componentes/editableNotepad"
+
 const Principal = () => {
   const { session, setSession } = useAuth()
   const [lists, setLists] = useState(session?.lists)
-  const [newItem, setNewItem] = useState("")
-  const [editingItem, setEditingItem] = useState({})
-  const [editingMode, setEditingMode] = useState(false)
   const [update, setUpdate] = useState(false)
   const [selectedList, setSelectedList] = useState({
     id: 0,
@@ -29,6 +30,8 @@ const Principal = () => {
   })
   const [showListModal, setShowListModal] = useState(false);
 
+  const size = [4,5,3]
+
   const history = useHistory();
 
   useEffect(() => {
@@ -37,12 +40,6 @@ const Principal = () => {
     }
   }, [session, history])
 
-  //Ao montar o componente verifica se ja existem listas
-  useEffect(() => {
-    if (lists.length > 0) {
-      setSelectedList(lists[0])
-    }
-  }, [])
 
   useEffect(() => {
     (
@@ -58,8 +55,9 @@ const Principal = () => {
             if (response.data.length == 1) {
               setSelectedList(response.data[0])
             }
-            setLists(response.data.lists)
             console.log(response.data)
+            setLists(response.data.lists)
+
             response.data.lists.map((list) => {
               if (list.id == selectedList.id) {
                 setSelectedList(list)
@@ -78,7 +76,7 @@ const Principal = () => {
     setUpdate(!update)
   }
 
-  async function addItem() {
+  async function addItem(newItem) {
 
     let item = {
       name: newItem,
@@ -94,7 +92,6 @@ const Principal = () => {
       }
     })
       .then((response) => {
-        setNewItem("")
         setUpdate(!update)
       })
       .catch((err) => {
@@ -126,17 +123,9 @@ const Principal = () => {
 
   }
 
-  async function updateItem() {
-    let item = {
-      name: newItem,
-      flavor: editingItem.flavor,
-      type: editingItem.type,
-      item_id: editingItem.id,
-      list_id: editingItem.list_id,
-      done: editingItem.done ? 1 : 0
-    }
-    console.log(item)
-    await API.put("item", item, {
+  async function updateItem(payload) {
+    console.log(payload)
+    await API.put("item", payload, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
@@ -145,22 +134,24 @@ const Principal = () => {
     })
       .then((response) => {
         setUpdate(!update)
-        setNewItem("")
-        setEditingMode(false)
-        setEditingItem({ id: 0 })
       })
       .catch((err) => console.log(err))
 
   }
 
-  function startEditingMode(item) {
-    setEditingItem(item)
-    setNewItem(item.name)
-    setEditingMode(true)
-  }
-
   function signOut() {
     setSession(null)
+  }
+
+  function closeSelectedList(){
+    setSelectedList({
+      id: 0,
+      name: "",
+      user_id: null,
+      items_quantity: null,
+      items: []
+    })
+    setUpdate(!update)
   }
 
 
@@ -168,120 +159,88 @@ const Principal = () => {
     <Container fluid style={{ fontFamily: "Courier New" }}>
       {showListModal ? <AddListModal show={true} user_id={session?.id} close={modalListClose} token={session?.token} /> : ""}
 
-      <Row style={{ marginTop: 20, boxShadow: "0px 3px rgb(0,0,0,0.1)" }}>
-        <Col className="d-flex justify-content-start" style={{ fontSize: 18, marginBottom: 12 }}>Bem-vindo, {session?.name}! ;)</Col>
+      <Row style={{ margin: 12, boxShadow: "0px 3px 3px 3px rgb(0,0,0,0.1)", borderRadius:10, padding:7 }}>
+        <Col className="d-flex justify-content-start" style={{ fontSize:18, color:"#75903E", borderRadius:20 }}> List
+        {//<Row><small>Bem-vindo, {session?.name}! ;)</small></Row>
+        }
+        </Col>
+
+
+        <Col className="row justify-content-center">
+          <input style={{
+            padding:3,
+            border:"solid",
+            borderColor: "#DE989A",
+            borderWidth:1.5,
+            outline:"none",
+            //backgroundColor:"rgb(0,0,0,0.1)",
+            borderRadius: 10,
+            width:"100%" }}/>
+
+        </Col>
+        {
+          //<Col onClick={()=> history.push("/editar")} >Editar perfil</Col>
+        }
         <Col className="d-flex justify-content-end" ><FontAwesomeIcon icon={faDoorOpen} onClick={signOut} /></Col>
       </Row>
 
-      <Row style={{ marginTop: 30 }} md={12}>
-        <Col md={4}>
-          <div style={{
-            width: 330,
-            height: "100%",
-            padding: 20,
-
-          }}>
-            <Row style={{ marginBottom: 10 }} >
-              <Col style={{ fontSize: 24, color: "white", backgroundColor: "#DE989A", borderRadius: 10 }}>Listas</Col>
-            </Row>
-
-            <Row>
-              {lists.length > 0 ?
-                <ListGroup variant="flush">
-                  {
-                    lists.map((list, index) =>
-                      <ListGroup.Item key={index} onClick={() => setSelectedList(list)}>{list.name}</ListGroup.Item>
-                    )
-                  }
-                </ListGroup>
-                :
-                <ListGroup variant="flush">
-                  <ListGroup.Item action>Vamos começar?! Clique em <FontAwesomeIcon icon={faPlusCircle} size="xs" color="#75903E" /> </ListGroup.Item>
-                </ListGroup>
-              }
-            </Row>
-            <Row style={{ marginBottom: 10 }}>
-              <Col className="d-flex justify-content-center" onClick={() => setShowListModal(true)}>
-                <FontAwesomeIcon icon={faPlusCircle} size="lg" color="#75903E" />
-              </Col>
-            </Row>
-          </div>
-        </Col>
+      <Row style={{ marginTop: 24 }} md={12}>
+{
+//         <Col>
+//
+//         <div style={{
+//           border:"solid",
+//           borderWidth:2,
+//           borderRadius:10,
+//           height:"80%",
+//           width:"100%"
+//         }}>
+//
+//         </div>
+//
+//
+//         </Col>
+}
 
         {
           lists.length > 0 ?
-            <Col style={{ height: window.innerHeight * (0.8) }}>
-              <div style={{
-                width: "90%",
-                height: "100%",
-                padding: 20,
-                border: "solid",
-                borderRadius: 20,
-                borderWidth: "1px",
-                boxShadow: "5px 3px gray",
-                borderColor: "#E7E7E7"
+            <Col md={12}>
+
+            <Row>
+
+            {selectedList.id === 0?
+              <div>
+              <Row style={{ marginBottom: 5 }}>
+                <Col className="d-flex justify-content-center" onClick={() => setShowListModal(true)}>
+                  <FontAwesomeIcon icon={faPlusCircle} size="lg" color="#75903E" />
+                </Col>
+              </Row>
+
+              <Row>
+              {lists.map((list, index)=>
+              <Col md={list.is_notebook?6:3} onClick={()=> {
+                setSelectedList(list)
               }}>
-                <Row>
-                  <Col style={{ fontSize: 24, color: "white", backgroundColor: "#A799B7", borderRadius: 10, fontFamily: "Courier New" }}>{selectedList?.name}</Col>
-                </Row>
+                <Notepad notepad={list}/>
+              </Col>
 
-                <Row style={{ marginBottom: 20, marginTop: 5 }} noGutters>
-                  <Col style={{ fontSize: 12, color: "black", fontFamily: "Courier New" }}>Criada por: {session?.name}</Col>
-                </Row>
+            )}
+            </Row>
+            </div>
+            :
+            <EditableNotepad
+            close={closeSelectedList}
+            selectedList={selectedList}
+            deleteItem={deleteItem}
+            updateItem={updateItem}
+            addItem={addItem}
+            />
+            }
+            </Row>
 
-                <Row>
-                  <Col>
-                    <Form onSubmit={(e) => e.preventDefault()}>
-                      <Row>
-                        <Col md={9}>
-                          <Form.Control
-                            type="text"
-                            style={{ borderRadius: 10 }}
-                            value={newItem}
-                            onChange={(e) => setNewItem(e.target.value)}
-                          />
-                        </Col>
-                        <Col>
-                          <Button
-                            type="submit"
-                            style={{
-                              backgroundColor: "#DE989A",
-                              border: "#DE989A",
-                              borderRadius: 10,
-                            }}
-                            onClick={(e) => {
-                              if (editingMode) {
-                                updateItem()
-                              } else {
-                                addItem()
-                              }
-                            }}
-                          >{editingMode ? "Salvar" : "Adicionar"}</Button>
-                        </Col>
-                      </Row>
-
-
-                    </Form>
-                  </Col>
-
-                </Row>
-
-                <ListGroup variant="flush" style={{ marginTop: 20 }}>
-                  {selectedList?.items.map((item, index) =>
-                    <ListGroup.Item style={{ marginBottom: 10 }} key={index}>
-                      <Row>
-                        <Col md={1}><Form.Check tyle="checkbox" /></Col>
-                        <Col md={9} onClick={() => startEditingMode(item)}>{item.name}{editingItem.id == item.id ? " (Editando)" : ""}</Col>
-                        <Col className="d-flex justify-content-end" onClick={() => deleteItem(item)} ><FontAwesomeIcon icon={faTrash} /></Col>
-                      </Row>
-                    </ListGroup.Item>
-                  )
-                  }
-                </ListGroup>
-              </div>
             </Col>
             :
-            ""
+            <AddListModal show={true} user_id={session?.id} close={modalListClose} token={session?.token} />
         }
 
       </Row>
