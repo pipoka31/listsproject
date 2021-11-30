@@ -12,13 +12,6 @@ export function useAuthProvider() {
 const Provider = ({ children }) => {
   const auth = useAuthProvider()
 
-  // const [infos, setInfos] = useState({
-  //   token: "",
-  //   name: "",
-  //   id: "",
-  //   lists: []
-  // });
-
   return (
     <Context.Provider value={auth}>
       {children}
