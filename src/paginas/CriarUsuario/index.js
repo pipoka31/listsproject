@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Col, Row, Container, Form, Button } from "react-bootstrap";
+import ReCAPTCHA from 'react-google-recaptcha'
 
 //UseHistory
 import { useHistory, Link } from "react-router-dom";
@@ -12,9 +13,10 @@ const CriarUsuario = () => {
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordAgain, setPasswordAgain] = useState("");
-  const [feedback, setFeedback] = useState("");
+  const [password, setPassword] = useState("")
+  const [passwordAgain, setPasswordAgain] = useState("")
+  const [feedback, setFeedback] = useState("")
+  const [isHuman, setIsHuman] = useState(false)
 
   async function createUser() {
     if (name == "") {
@@ -27,7 +29,7 @@ const CriarUsuario = () => {
       setFeedback("Preencha a senha, por favor");
       return;
     } else if (password != passwordAgain) {
-      setFeedback("As senhas são diferentes");
+      setFeedback("As senhas sÃ£o diferentes");
       return;
     }
     console.log("chegou");
@@ -48,11 +50,24 @@ const CriarUsuario = () => {
       });
   }
 
+  async function checkHuman(value) {
+    const response = await API.post(
+      "/recaptchacheck",
+      { token: value },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      },
+    )
+    setIsHuman(response.data.success)
+  }
+
   return (
     <Container fluid style={{ fontFamily: "Courier New" }}>
-      <Row style={{ marginTop: window.innerHeight * 0.2 }}>
-        <Col
-          className="d-flex justify-content-center"
+      <Row style={{ marginTop: window.innerHeight * (0.2) }}>
+        <Col className="d-flex justify-content-center"
           style={{
             fontFamily: "Courier New",
             fontSize: 24,
@@ -136,15 +151,23 @@ const CriarUsuario = () => {
                 type="submit"
                 block
                 style={{
-                  backgroundColor: "#DE989A",
+                  backgroundColor: isHuman ? "#DE989A" : "#ebced0",
                   border: "#DE989A",
                   borderRadius: 10,
                   width: 280,
+                  marginBottom:10
                 }}
+                disabled={!isHuman}
                 onClick={() => createUser()}
               >
                 Pronto para começar!
               </Button>
+
+              <ReCAPTCHA
+                sitekey="6LetpVsdAAAAAAHYo0l1BrxfqHRja632tbCiGWR1"
+                size="normal"
+                onChange={checkHuman}
+              />
             </Form>
 
             <p style={{ fontSize: 11, marginTop: 20, textAlign: "center" }}>

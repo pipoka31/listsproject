@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Col, Row, Container, Form, Button } from "react-bootstrap";
+import ReCAPTCHA from 'react-google-recaptcha'
 
 //UseHistory
 import { useHistory, Link } from "react-router-dom";
@@ -15,6 +16,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [isHuman, setIsHuman] = useState(false)
 
   useEffect(() => {
     if (session) history.push("/principal");
@@ -44,6 +46,20 @@ const Login = () => {
         console.log(err);
         setFeedback("Desculpe, não encontramos seu login :l");
       });
+  }
+
+  async function checkHuman(value) {
+    const response = await API.post(
+      "/recaptchacheck",
+      { token: value },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      },
+    )
+    setIsHuman(response.data.success)
   }
 
   return (
@@ -107,15 +123,23 @@ const Login = () => {
                 block
                 type="submit"
                 style={{
-                  backgroundColor: "#DE989A",
+                  backgroundColor: isHuman ? "#DE989A" : "#ebced0",
                   border: "#DE989A",
                   borderRadius: 10,
                   width: 280,
+                  marginBottom:10
                 }}
                 onClick={() => processLogin()}
+                disabled={!isHuman}
               >
                 Vamos lá
               </Button>
+              <ReCAPTCHA
+                sitekey="6LetpVsdAAAAAAHYo0l1BrxfqHRja632tbCiGWR1"
+                size="normal"
+                onChange={checkHuman}
+              />
+
             </Form>
 
             <p style={{ fontSize: 11, marginTop: 20, textAlign: "center" }}>

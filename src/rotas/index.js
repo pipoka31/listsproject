@@ -12,7 +12,7 @@ function ProtectedRoutes(props) {
   const { session } = useAuth();
   return (
     <Route
-      render={() => (session ? props.children : <Redirect to={'/'} />)}
+      render={() => session ? props.children : <Redirect to={'/'} />}
     />
   )
 }
@@ -21,12 +21,11 @@ export default function Rotas() {
   return (
     <Switch>
       <Route exact path="/" component={Login} />
+      <Route exact path="/criar" component={CriarUsuario} />
       <ProtectedRoutes>
         <Route exact path="/principal" component={Principal} />
         <Route exact path="/editar" component={EditarUsuario} />
-        <Route exact path="/criar" component={CriarUsuario} />
       </ProtectedRoutes>
-
     </Switch>
   )
 }
