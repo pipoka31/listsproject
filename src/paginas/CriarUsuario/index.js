@@ -29,10 +29,10 @@ const CriarUsuario = () => {
       setFeedback("Preencha a senha, por favor");
       return;
     } else if (password != passwordAgain) {
-      setFeedback("As senhas sÃ£o diferentes");
+      setFeedback("As senhas são diferentes");
       return;
     }
-    console.log("chegou");
+    
     await API.post("user", {
       name: name,
       username: username,
@@ -99,7 +99,7 @@ const CriarUsuario = () => {
                   style={{
                     borderColor: "#DE989A",
                     borderWidht: "1.5px",
-                    width: 280,
+                    width: "100%",
                     outline: "none",
                   }}
                   onChange={(e) => setName(e.target.value)}
@@ -112,7 +112,7 @@ const CriarUsuario = () => {
                   style={{
                     borderColor: "#DE989A",
                     borderWidht: "1.5px",
-                    width: 280,
+                    width: "100%",
                     outline: "none",
                   }}
                   onChange={(e) => setUsername(e.target.value)}
@@ -126,7 +126,7 @@ const CriarUsuario = () => {
                   style={{
                     borderColor: "#DE989A",
                     borderWidht: "1.5px",
-                    width: 280,
+                    width: "100%",
                     outline: "none",
                   }}
                   onChange={(e) => setPassword(e.target.value)}
@@ -140,7 +140,7 @@ const CriarUsuario = () => {
                   style={{
                     borderColor: "#DE989A",
                     borderWidht: "1.5px",
-                    width: 280,
+                    width: "100%",
                     outline: "none",
                   }}
                   onChange={(e) => setPasswordAgain(e.target.value)}
@@ -154,7 +154,7 @@ const CriarUsuario = () => {
                   backgroundColor: isHuman ? "#DE989A" : "#ebced0",
                   border: "#DE989A",
                   borderRadius: 10,
-                  width: 280,
+                  width: "100%",
                   marginBottom:10
                 }}
                 disabled={!isHuman}
