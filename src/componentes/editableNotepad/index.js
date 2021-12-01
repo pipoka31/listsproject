@@ -148,6 +148,7 @@ export default function EditableNotepad({
                   </Col>
                   <Col md={9} xs={9}>
                     <Form.Control
+                      className="form-control shadow-none"
                       style={{
                         border: "none",
                         outline: "none",
@@ -161,7 +162,7 @@ export default function EditableNotepad({
                           type: item.type,
                           item_id: item.id,
                           list_id: item.list_id,
-                          done: 0,
+                          done: item.done?1:0,
                         });
                       }}
                     />
@@ -179,9 +180,10 @@ export default function EditableNotepad({
         ) : (
           <Form.Control
             as="textarea"
+            className="form-control shadow-none"
             defaultValue={selectedList.items[0]?.name}
             style={{
-              outline: "none",
+              outline:"none",
               height: "90%",
               border: "none",
               backgroundColor: ground,
@@ -195,7 +197,7 @@ export default function EditableNotepad({
                     type: selectedList.items[0].type,
                     item_id: selectedList.items[0].id,
                     list_id: selectedList.items[0].list_id,
-                    done: 0,
+                    done: selectedList.items[0].done?1:0,
                   })
             }
           />

@@ -98,7 +98,7 @@ const Login = () => {
                   style={{
                     borderColor: "#DE989A",
                     borderWidht: "1.5px",
-                    width: 280,
+                    width: "100%",
                     outline: "none",
                   }}
                   onChange={(e) => setUsername(e.target.value)}
@@ -112,7 +112,7 @@ const Login = () => {
                   style={{
                     borderColor: "#DE989A",
                     borderWidht: "1.5px",
-                    width: 280,
+                    width: "100%",
                     outline: "none",
                   }}
                   onChange={(e) => setPassword(e.target.value)}
@@ -126,7 +126,7 @@ const Login = () => {
                   backgroundColor: isHuman ? "#DE989A" : "#ebced0",
                   border: "#DE989A",
                   borderRadius: 10,
-                  width: 280,
+                  width: "100%",
                   marginBottom:10
                 }}
                 onClick={() => processLogin()}

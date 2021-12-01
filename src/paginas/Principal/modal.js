@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Button, Modal, Form } from "react-bootstrap";
 
 import API from "../../servicos/api";
@@ -10,6 +10,11 @@ export const AddListModal = (props) => {
     is_notebook: 0,
     color: "#A799B7",
   });
+  const nameInput = useRef(null)
+
+  useEffect(()=>{
+     nameInput.current.focus()
+  },[])
 
   const colors = [
     "#A799B7",
@@ -44,8 +49,6 @@ export const AddListModal = (props) => {
     }
   }
 
-  function notebookCheck(value) {}
-
   return (
     <Modal
       show={true}
@@ -57,10 +60,12 @@ export const AddListModal = (props) => {
           <Form.Group>
             <Form.Label>Nome</Form.Label>
             <Form.Control
+              ref={nameInput}
+              className="form-control shadow-none"
               style={{
                 borderColor: "#DE989A",
                 borderWidht: "1.5px",
-                outline: "none",
+                outline: "tranparent",
               }}
               type="text"
               onChange={(e) => setList({ ...list, name: e.target.value })}
@@ -74,14 +79,13 @@ export const AddListModal = (props) => {
             <Form.Check
               type="checkbox"
               label="Caderno"
-              isSelected={list.is_notebook === 1}
+              checked={list.is_notebook === 1}
               onClick={() => setList({ ...list, is_notebook: 1 })}
             />
             <Form.Check
               type="checkbox"
               label="Lista"
-              isSelected={list.is_notebook === 0}
-              default={true}
+              checked={list.is_notebook === 0}
               onClick={() => setList({ ...list, is_notebook: 0 })}
             />
           </Form.Group>
@@ -96,7 +100,7 @@ export const AddListModal = (props) => {
                     marginTop: 10,
                     width: 20,
                     height: 25,
-                    border: list.color == color ? "solid" : "none",
+                    border: list.color === color ? "solid" : "none",
                     borderWidth: 1,
                   }}
                   onClick={() => setList({ ...list, color: color })}
@@ -123,23 +127,6 @@ export const AddListModal = (props) => {
           </Row>
         </Form>
       </Modal.Body>
-    </Modal>
-  );
-};
-
-export const AddItemList = (props) => {
-  const [list, setList] = useState({ name: "", user_id: null });
-
-  return (
-    <Modal show={props.show}>
-      <Modal.Header closeButton>
-        <Modal.Title>Modal heading</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary">Close</Button>
-        <Button variant="primary">Save Changes</Button>
-      </Modal.Footer>
     </Modal>
   );
 };
