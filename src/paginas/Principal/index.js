@@ -118,7 +118,7 @@ const Principal = () => {
   }
 
   async function updateItem(payload) {
-    
+
     await API.put("item", payload, {
       headers: {
         "Content-Type": "application/json",
@@ -173,7 +173,7 @@ const Principal = () => {
           style={{ fontSize: 18, color: "#75903E", borderRadius: 20 }}
         >
           {" "}
-          Lists
+          anota!
           {
             //<Row><small>Bem-vindo, {session?.name}! ;)</small></Row>
           }
