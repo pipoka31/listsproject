@@ -32,7 +32,7 @@ const CriarUsuario = () => {
       setFeedback("As senhas são diferentes");
       return;
     }
-    
+
     await API.post("user", {
       name: name,
       username: username,
@@ -75,7 +75,7 @@ const CriarUsuario = () => {
             fontWeight: "bolder",
           }}
         >
-          Lists
+          anota!
         </Col>
       </Row>
 

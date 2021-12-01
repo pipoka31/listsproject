@@ -74,7 +74,7 @@ const Login = () => {
             fontWeight: "bolder",
           }}
         >
-          Lists
+          anota!
         </Col>
       </Row>
 
